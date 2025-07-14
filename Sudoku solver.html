@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Sudoku Solver</title>
+    <style>
+        /* Basic styling - easy to understand */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Simple grid layout */
+        .sudoku-grid {
+            display: inline-block;
+            border: 3px solid black;
+            background-color: black;
+            margin: 20px auto;
+        }
+
+        /* Each cell in the grid */
+        .row {
+            display: flex;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #999;
+            background-color: white;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Make some borders thicker for 3x3 boxes */
+        .cell:nth-child(3), .cell:nth-child(6) {
+            border-right: 2px solid black;
+        }
+
+        .row:nth-child(3), .row:nth-child(6) {
+            border-bottom: 2px solid black;
+        }
+
+        /* Different colors for different types of numbers */
+        .given {
+            background-color: #e6f3ff;
+            color: blue;
+        }
+
+        .solved {
+            background-color: #e6ffe6;
+            color: green;
+        }
+
+        /* Simple button styling */
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+        }
+
+        .clear-btn:hover {
+            background-color: #da190b;
+        }
+
+        /* Info box */
+        .info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 500px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Sudoku Solver</h1>
+    
+    <div class="info">
+        <strong>How to use:</strong><br>
+        1. Enter numbers 1-9 in the empty cells<br>
+        2. Click "Solve Puzzle" to see the solution<br>
+        3. Blue numbers = your input, Green numbers = solved by computer
+    </div>
+
+    <!-- The Sudoku Grid -->
+    <div class="sudoku-grid" id="sudokuGrid">
+        <!-- Grid will be created by JavaScript -->
+    </div>
+
+    <!-- Control buttons -->
+    <div>
+        <button onclick="solvePuzzle()">Solve Puzzle</button>
+        <button class="clear-btn" onclick="clearGrid()">Clear Grid</button>
+        <button onclick="loadExample()">Load Example</button>
+    </div>
+
+    <script>
+        // This is our main data - a 9x9 grid represented as a 2D array
+        // 0 means empty cell, numbers 1-9 are filled cells
+        let sudokuGrid = [
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0]
+        ];
+
+        // Keep track of which numbers were given by user vs solved by computer
+        let givenNumbers = [
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false],
+            [false,false,false,false,false,false,false,false,false]
+        ];
+
+        // Function to create the visual grid on the webpage
+        function createGrid() {
+            let gridHTML = "";
+            
+            // Loop through each row (0 to 8)
+            for (let row = 0; row < 9; row++) {
+                gridHTML += '<div class="row">';
+                
+                // Loop through each column (0 to 8)
+                for (let col = 0; col < 9; col++) {
+                    // Create input field for each cell
+                    gridHTML += `<input type="text" class="cell" maxlength="1" 
+                                id="cell-${row}-${col}" 
+                                oninput="updateGrid(${row}, ${col}, this.value)">`;
+                }
+                
+                gridHTML += '</div>';
+            }
+            
+            // Put the HTML into our grid container
+            document.getElementById('sudokuGrid').innerHTML = gridHTML;
+        }
+
+        // Function called when user types in a cell
+        function updateGrid(row, col, value) {
+            // Check if the input is valid (only numbers 1-9 or empty)
+            if (value === "" || (value >= "1" && value <= "9")) {
+                if (value === "") {
+                    sudokuGrid[row][col] = 0;
+                    givenNumbers[row][col] = false;
+                } else {
+                    sudokuGrid[row][col] = parseInt(value);
+                    givenNumbers[row][col] = true;
+                }
+                updateDisplay();
+            } else {
+                // Invalid input - clear the cell
+                document.getElementById(`cell-${row}-${col}`).value = "";
+            }
+        }
+
+        // Function to update the visual display
+        function updateDisplay() {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    let cell = document.getElementById(`cell-${row}-${col}`);
+                    let value = sudokuGrid[row][col];
+                    
+                    // Set the cell value
+                    cell.value = value === 0 ? "" : value;
+                    
+                    // Remove old classes
+                    cell.classList.remove("given", "solved");
+                    
+                    // Add appropriate class based on number source
+                    if (value !== 0) {
+                        if (givenNumbers[row][col]) {
+                            cell.classList.add("given");
+                        } else {
+                            cell.classList.add("solved");
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check if a number is valid in a specific position
+        function isValidMove(grid, row, col, num) {
+            // Check row - make sure num doesn't appear in the same row
+            for (let x = 0; x < 9; x++) {
+                if (grid[row][x] === num) {
+                    return false;
+                }
+            }
+
+            // Check column - make sure num doesn't appear in the same column
+            for (let x = 0; x < 9; x++) {
+                if (grid[x][col] === num) {
+                    return false;
+                }
+            }
+
+            // Check 3x3 box - make sure num doesn't appear in the same 3x3 square
+            let startRow = Math.floor(row / 3) * 3;  // Find start of 3x3 box
+            let startCol = Math.floor(col / 3) * 3;
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (grid[startRow + i][startCol + j] === num) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;  // Number is valid!
+        }
+
+        // Main solving function using backtracking algorithm
+        function solveSudokuBacktracking(grid) {
+            // Try to find an empty cell (value = 0)
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (grid[row][col] === 0) {
+                        
+                        // Try numbers 1 through 9
+                        for (let num = 1; num <= 9; num++) {
+                            
+                            // Check if this number is valid here
+                            if (isValidMove(grid, row, col, num)) {
+                                
+                                // Place the number
+                                grid[row][col] = num;
+                                
+                                // Recursively try to solve the rest
+                                if (solveSudokuBacktracking(grid)) {
+                                    return true;  // Success!
+                                }
+                                
+                                // If it didn't work, backtrack (undo the move)
+                                grid[row][col] = 0;
+                            }
+                        }
+                        
+                        // No number worked, so this path is impossible
+                        return false;
+                    }
+                }
+            }
+            
+            // No empty cells found - puzzle is solved!
+            return true;
+        }
+
+        // Function called when user clicks "Solve Puzzle"
+        function solvePuzzle() {
+            // Make a copy of the current grid to solve
+            let gridCopy = [];
+            for (let i = 0; i < 9; i++) {
+                gridCopy[i] = [...sudokuGrid[i]];
+            }
+            
+            // Try to solve it
+            if (solveSudokuBacktracking(gridCopy)) {
+                // Success! Update our main grid
+                sudokuGrid = gridCopy;
+                updateDisplay();
+                alert("Puzzle solved successfully! 🎉");
+            } else {
+                alert("No solution exists for this puzzle. Please check your numbers.");
+            }
+        }
+
+        // Function to clear the entire grid
+        function clearGrid() {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    sudokuGrid[row][col] = 0;
+                    givenNumbers[row][col] = false;
+                }
+            }
+            updateDisplay();
+        }
+
+        // Function to load an example puzzle
+        function loadExample() {
+            // A simple example puzzle
+            let example = [
+                [5,3,0,0,7,0,0,0,0],
+                [6,0,0,1,9,5,0,0,0],
+                [0,9,8,0,0,0,0,6,0],
+                [8,0,0,0,6,0,0,0,3],
+                [4,0,0,8,0,3,0,0,1],
+                [7,0,0,0,2,0,0,0,6],
+                [0,6,0,0,0,0,2,8,0],
+                [0,0,0,4,1,9,0,0,5],
+                [0,0,0,0,8,0,0,7,9]
+            ];
+            
+            // Clear current grid first
+            clearGrid();
+            
+            // Load example numbers
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (example[row][col] !== 0) {
+                        sudokuGrid[row][col] = example[row][col];
+                        givenNumbers[row][col] = true;
+                    }
+                }
+            }
+            
+            updateDisplay();
+        }
+
+        // Initialize the grid when page loads
+        createGrid();
+        updateDisplay();
+    </script>
+</body>
+</html>
