@@ -1,102 +1,98 @@
-# Sudoku_Solver
-A complete, interactive Sudoku solver built with vanilla JavaScript that demonstrates backtracking algorithms in action.
+# Simple Sudoku Solver
 
-🌟 Features
-Puzzle Interaction
-Editable 9×9 grid with input validation (only accepts 1-9)
+A clean, interactive web-based Sudoku solver built with vanilla HTML, CSS, and JavaScript. Solve puzzles manually or let the computer solve them for you using a backtracking algorithm!
 
-Visual distinction between user-provided numbers (blue) and solver-generated numbers (green)
+## 🎯 Features
 
-Clear grid functionality to reset the puzzle
+- *Interactive Grid*: Click and type numbers directly into the 9×9 Sudoku grid
+- *Automatic Solver*: Uses backtracking algorithm to solve any valid Sudoku puzzle
+- *Visual Feedback*: 
+  - Blue numbers = your input
+  - Green numbers = computer-solved
+  - Clear 3×3 box divisions
+- *Example Puzzles*: Load a sample puzzle to get started
+- *Input Validation*: Only accepts numbers 1-9
+- *Clear Grid*: Reset the entire puzzle with one click
 
-Sample puzzle loader for quick testing
+## 🚀 Quick Start
 
-Solver Capabilities
-Backtracking algorithm implementation
+1. *Clone the repository*
+   bash
+   git clone https://github.com/Amanrxn03/sudoku-solver.git
+   cd sudoku-solver
+   
 
-Validation checks for row, column, and 3×3 box constraints
+2. *Open in browser*
+   bash
+   open index.html
+   
+   Or simply double-click the index.html file!
 
-Solution verification with error detection
+## 📖 How to Use
 
-Instant solving for most standard puzzles
+1. *Enter Numbers*: Click on any empty cell and type a number (1-9)
+2. *Solve Puzzle*: Click "Solve Puzzle" to let the computer complete it
+3. *Load Example*: Click "Load Example" to try a sample puzzle
+4. *Clear Grid*: Click "Clear Grid" to start over
 
-🛠️ Technical Implementation
-Core Algorithm
-javascript
-function solveSudokuBacktracking(grid) {
-    for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-            if (grid[row][col] === 0) {
-                for (let num = 1; num <= 9; num++) {
-                    if (isValidMove(grid, row, col, num)) {
-                        grid[row][col] = num;
-                        if (solveSudokuBacktracking(grid)) return true;
-                        grid[row][col] = 0;
-                    }
-                }
-                return false;
-            }
-        }
-    }
-    return true;
-}
-Key Functions
-isValidMove() - Checks row, column and 3×3 box constraints
+## 🧠 Algorithm
 
-updateGrid() - Handles user input with validation
+The solver uses a *backtracking algorithm*:
 
-updateDisplay() - Manages visual feedback
+1. Find the first empty cell
+2. Try numbers 1-9 in that cell
+3. For each number, check if it's valid (no conflicts in row, column, or 3×3 box)
+4. If valid, place the number and recursively solve the rest
+5. If no solution found, backtrack and try the next number
+6. Repeat until solved or all possibilities exhausted
 
-🚀 How to Use
-Input your puzzle:
+## 🛠 Technical Details
 
-Click on cells and type numbers (1-9)
+- *Pure JavaScript*: No external libraries or frameworks
+- *Responsive Design*: Works on desktop and mobile devices
+- *Clean Code*: Well-commented and easy to understand
+- *Error Handling*: Validates input and handles unsolvable puzzles
 
-Leave empty (0) for unsolved cells
-
-Solve options:
-
-Solve Puzzle: Runs the backtracking solver
-
-Clear Grid: Resets the entire puzzle
-
-Load Example: Populates a sample puzzle
-
-Understand the solution:
-
-Blue numbers = Your original input
-
-Green numbers = Computer's solution
-
-🧮 Algorithm Complexity
-Aspect	Complexity	Notes
-Time	O(9^(n×n))	Worst case for backtracking
-Space	O(n×n)	Recursion stack depth
-Average solve	<1s	For standard puzzles
-🌐 Deployment
-This is a static web app that requires no server:
-
-Clone the repository
-
-Open index.html in any modern browser
-
-(Optional) Host on GitHub Pages, Netlify, etc.
-
-📚 Learning Resources
-The code includes detailed comments explaining:
-
-Backtracking algorithm implementation
-
-Sudoku rule validation
-
-DOM manipulation techniques
-
-Event handling for user input
+## 📁 Project Structure
 
 
-🐛 Known Issues
-No input validation for unsolvable puzzles
+sudoku-solver/
+├── index.html          # Main HTML file with embedded CSS and JavaScript
+├── README.md           # This file
+└── LICENSE             # MIT License (optional)
 
-Basic UI without advanced features
 
-No difficulty levels or puzzle generation
+## 🎨 Customization
+
+The code is designed to be easily customizable:
+
+- *Colors*: Modify the CSS variables for different themes
+- *Grid Size*: Easy to adapt for different puzzle sizes
+- *Algorithms*: Add different solving techniques (naked singles, hidden pairs, etc.)
+- *Features*: Add timer, difficulty levels, or puzzle generation
+
+## 🤝 Contributing
+
+Contributions are welcome! Here are some ideas:
+
+- Add puzzle generation functionality
+- Implement additional solving techniques
+- Add difficulty levels
+- Create a mobile-friendly version
+- Add animations for the solving process
+
+
+## 🎮 Try It Now
+
+Want to see it in action? [Visit the live demo](https://Amanrxn03.github.io/sudoku-solver)
+
+## 🔧 Future Enhancements
+
+- [ ] Puzzle generation with difficulty levels
+- [ ] Timer and scoring system
+- [ ] Hint system
+- [ ] Save/load puzzles
+- [ ] Multiple solving algorithms
+- [ ] Mobile app version
+
+---
