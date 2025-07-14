@@ -82,10 +82,6 @@ Contributions are welcome! Here are some ideas:
 - Add animations for the solving process
 
 
-## 🎮 Try It Now
-
-Want to see it in action? [Visit the live demo](https://Amanrxn03.github.io/sudoku-solver)
-
 ## 🔧 Future Enhancements
 
 - [ ] Puzzle generation with difficulty levels
